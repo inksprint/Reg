@@ -3,8 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn Post - RAG System Project</title>
+    <title>RAG System - Smart Memory for LLMs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,335 +28,833 @@
         }
 
         body {
-            background: linear-gradient(135deg, #f3f6fd 0%, #e8edf7 100%);
-            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+            color: var(--dark);
             line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow-x: hidden;
         }
 
-        .linkedin-post {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            max-width: 800px;
-            width: 100%;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
 
-        .post-header {
-            padding: 25px;
-            border-bottom: 1px solid #eaeaea;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            background-position: center;
         }
 
-        .profile-pic {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #0077b5 0%, #00a0dc 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
+        .header-content {
+            position: relative;
+            z-index: 1;
         }
 
-        .profile-info h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
         }
 
-        .profile-info p {
-            color: #666;
-            font-size: 14px;
+        header p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
         }
 
-        .post-time {
-            color: #999;
-            font-size: 14px;
-            margin-left: auto;
+        /* Section Styles */
+        section {
+            padding: 80px 0;
         }
 
-        .post-content {
-            padding: 25px;
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
         }
 
-        .post-text {
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .section-title p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            height: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
             margin-bottom: 20px;
         }
 
-        .post-text p {
+        .card h3 {
+            font-size: 1.5rem;
             margin-bottom: 15px;
+            color: var(--secondary);
         }
 
-        .hashtags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .hashtag {
-            background: #e6f2ff;
-            color: #0077b5;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .project-showcase {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 25px 0;
-            border-left: 4px solid #0077b5;
-        }
-
-        .project-showcase h4 {
-            margin-bottom: 10px;
-            color: #0077b5;
-        }
-
-        .project-features {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .feature {
+        /* Problem Section */
+        .problem-content {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 40px;
+            margin-bottom: 40px;
         }
 
-        .feature i {
-            color: #0077b5;
+        .problem-text, .solution-text {
+            flex: 1;
         }
 
-        .cta-section {
+        .problem-image, .solution-image {
+            flex: 1;
             text-align: center;
-            margin: 25px 0;
         }
 
-        .github-btn {
-            background: linear-gradient(135deg, #0077b5 0%, #00a0dc 100%);
+        .problem-image img, .solution-image img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .problem-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .problem-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .problem-list li::before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        /* Solution Section */
+        .solution-content {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .benefit-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .benefit-list li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .benefit-list li::before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .rag-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .step {
+            text-align: center;
+            padding: 25px 15px;
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-weight: bold;
+            font-size: 1.3rem;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Demo Section */
+        .demo-container {
+            background: var(--light);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--light-gray);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: white;
+        }
+
+        select:focus, input[type="text"]:focus, textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
             font-size: 16px;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            text-decoration: none;
         }
 
-        .github-btn:hover {
+        .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,119,181,0.3);
+            box-shadow: 0 7px 15px rgba(67, 97, 238, 0.3);
         }
 
-        .post-stats {
-            display: flex;
-            justify-content: space-between;
-            padding: 15px 25px;
-            border-top: 1px solid #eaeaea;
-            color: #666;
+        .output {
+            margin-top: 30px;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            border-left: 5px solid var(--primary);
+            display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .database {
+            background: var(--light-gray);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
             font-size: 14px;
+            border: 1px dashed var(--gray);
         }
 
-        .post-actions {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 25px;
-            border-top: 1px solid #eaeaea;
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
         }
 
-        .action-btn {
+        .comparison-item {
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .traditional {
+            background: #ffe6e6;
+            border-left: 5px solid var(--warning);
+        }
+
+        .rag {
+            background: #e6f7ff;
+            border-left: 5px solid var(--success);
+        }
+
+        /* Practice Section */
+        .practice-questions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+
+        .question-card {
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px dashed var(--primary);
+            transition: var(--transition);
+        }
+
+        .question-card:hover {
+            border-style: solid;
+            transform: translateY(-5px);
+        }
+
+        .question-card h4 {
+            margin-bottom: 15px;
+            color: var(--secondary);
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #666;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px 15px;
-            border-radius: 5px;
-            transition: all 0.2s ease;
+            gap: 10px;
         }
 
-        .action-btn:hover {
-            background: #f0f0f0;
-            color: #0077b5;
+        .question-card h4 i {
+            color: var(--accent);
         }
 
-        @media (max-width: 600px) {
-            .project-features {
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 50px 0 20px;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--success);
+        }
+
+        .copyright {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            header h1 {
+                font-size: 2.8rem;
+            }
+            
+            .problem-content, .solution-content {
+                flex-direction: column;
+            }
+            
+            .problem-image, .solution-image {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 40px 0;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+            
+            header p {
+                font-size: 1.1rem;
+            }
+            
+            section {
+                padding: 60px 0;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .comparison {
                 grid-template-columns: 1fr;
             }
             
-            .post-stats {
+            .rag-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .card {
+                padding: 20px;
+            }
+            
+            .demo-container {
+                padding: 20px;
+            }
+            
+            .practice-questions {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
                 flex-direction: column;
-                gap: 10px;
+                gap: 15px;
             }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="linkedin-post">
-        <div class="post-header">
-            <div class="profile-pic">DS</div>
-            <div class="profile-info">
-                <h3>Data Science Enthusiast</h3>
-                <p>AI Developer | Building Solutions for Real-World Problems</p>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>Retrieval-Augmented Generation</h1>
+                <p>Smart Memory System for LLMs - Solving the Hallucination Problem</p>
             </div>
-            <div class="post-time">1d • 🌍</div>
         </div>
-        
-        <div class="post-content">
-            <div class="post-text">
-                <p>🚀 <strong>Just solved one of the biggest challenges in AI: LLM Hallucinations!</strong></p>
-                
-                <p>Are you tired of Large Language Models making up facts, providing outdated information, or failing to cite sources? 🤔</p>
-                
-                <p>I've built a complete <strong>Retrieval-Augmented Generation (RAG) System</strong> that gives LLMs a "smart memory" to access real-time, verified information from knowledge bases! 🧠</p>
-                
-                <p><strong>The Problem:</strong> Traditional LLMs like ChatGPT have:<br>
-                • No access to current information after training<br>
-                • Tendency to hallucinate when unsure<br>
-                • No source verification<br>
-                • Limited context windows</p>
-                
-                <p><strong>My Solution:</strong> A RAG system that:<br>
-                • Connects LLMs to external databases<br>
-                • Provides real-time, accurate information<br>
-                • Cites sources for every fact<br>
-                • Reduces hallucinations by 80%+</p>
+    </header>
+
+    <section id="problem">
+        <div class="container">
+            <div class="section-title">
+                <h2>The Problem: LLM Memory Limitations</h2>
+                <p>Traditional Large Language Models face several critical challenges</p>
             </div>
-            
-            <div class="hashtags">
-                <div class="hashtag">#DataScience</div>
-                <div class="hashtag">#AI</div>
-                <div class="hashtag">#MachineLearning</div>
-                <div class="hashtag">#LLM</div>
-                <div class="hashtag">#RAG</div>
-                <div class="hashtag">#GenerativeAI</div>
-                <div class="hashtag">#ArtificialIntelligence</div>
-                <div class="hashtag">#TechInnovation</div>
-                <div class="hashtag">#AIEngineering</div>
-                <div class="hashtag">#FutureTech</div>
+
+            <div class="problem-content">
+                <div class="problem-text">
+                    <div class="card">
+                        <div class="card-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3>Key Limitations of Traditional LLMs</h3>
+                        <ul class="problem-list">
+                            <li><strong>Hallucination:</strong> Inventing false information when correct data is unavailable</li>
+                            <li><strong>Static Knowledge:</strong> Inability to learn new information after training</li>
+                            <li><strong>No Source Verification:</strong> Unable to cite sources for provided information</li>
+                            <li><strong>Outdated Information:</strong> Lack of knowledge about recent events or current data</li>
+                            <li><strong>Context Window Limits:</strong> Restricted memory for long conversations or documents</li>
+                        </ul>
+                        <p style="margin-top: 20px;"><strong>Example:</strong> If you ask about your company's latest policies, the LLM cannot provide accurate answers as it only has pre-training knowledge.</p>
+                    </div>
+                </div>
+                <div class="problem-image">
+                    <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="LLM Memory Problem">
+                </div>
             </div>
-            
-            <div class="project-showcase">
-                <h4>🚀 Project Highlights:</h4>
-                <p>I created an interactive web application that demonstrates RAG vs Traditional LLM performance with:</p>
+        </div>
+    </section>
+
+    <section id="solution" style="background: var(--light);">
+        <div class="container">
+            <div class="section-title">
+                <h2>The Solution: RAG System</h2>
+                <p>Connecting LLMs to external knowledge bases for accurate, up-to-date information</p>
+            </div>
+
+            <div class="solution-content">
+                <div class="solution-text">
+                    <div class="card">
+                        <div class="card-icon">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <h3>How RAG Enhances LLMs</h3>
+                        <ul class="benefit-list">
+                            <li><strong>Real-time Information:</strong> Access to the latest data and updates</li>
+                            <li><strong>Source Verification:</strong> Ability to trace information back to its origin</li>
+                            <li><strong>Reduced Hallucination:</strong> Facts are retrieved from verified databases</li>
+                            <li><strong>Custom Knowledge:</strong> Use of company or domain-specific data</li>
+                            <li><strong>Dynamic Learning:</strong> Continuous improvement with new information</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="solution-image">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="RAG Solution">
+                </div>
+            </div>
+
+            <div class="rag-steps">
+                <div class="step card">
+                    <div class="step-number">1</div>
+                    <h3>Query Reception</h3>
+                    <p>Receive and process the user's question</p>
+                </div>
+                <div class="step card">
+                    <div class="step-number">2</div>
+                    <h3>Database Search</h3>
+                    <p>Search for relevant documents in knowledge base</p>
+                </div>
+                <div class="step card">
+                    <div class="step-number">3</div>
+                    <h3>Context Augmentation</h3>
+                    <p>Enhance the prompt with retrieved information</p>
+                </div>
+                <div class="step card">
+                    <div class="step-number">4</div>
+                    <h3>Answer Generation</h3>
+                    <p>Generate response using the enhanced context</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo">
+        <div class="container">
+            <div class="section-title">
+                <h2>Live Demo: RAG vs Traditional LLM</h2>
+                <p>See the difference in action with our interactive demonstration</p>
+            </div>
+
+            <div class="demo-container">
+                <div class="input-group">
+                    <label for="questionDropdown"><i class="fas fa-list"></i> Select a Sample Question:</label>
+                    <select id="questionDropdown" onchange="loadQuestion()">
+                        <option value="">-- Choose a question from the list --</option>
+                        <option value="What is our company's latest leave policy?">What is our company's latest leave policy?</option>
+                        <option value="How many work from home days are allowed per week?">How many work from home days are allowed per week?</option>
+                        <option value="When did Project Phoenix start?">When did Project Phoenix start?</option>
+                        <option value="How many developers are currently in the company?">How many developers are currently in the company?</option>
+                        <option value="What is the process for requesting a new laptop?">What is the process for requesting a new laptop?</option>
+                        <option value="What are the working hours for our company?">What are the working hours for our company?</option>
+                        <option value="Is there a dress code policy for the office?">Is there a dress code policy for the office?</option>
+                        <option value="What is the procedure for expense reimbursement?">What is the procedure for expense reimbursement?</option>
+                        <option value="How does the performance review process work?">How does the performance review process work?</option>
+                        <option value="What training programs are available for employees?">What training programs are available for employees?</option>
+                        <option value="What is the company's policy on overtime?">What is the company's policy on overtime?</option>
+                        <option value="How do I report a technical issue with my computer?">How do I report a technical issue with my computer?</option>
+                        <option value="What are the guidelines for using social media at work?">What are the guidelines for using social media at work?</option>
+                        <option value="What is the company's policy on bringing visitors to the office?">What is the company's policy on bringing visitors to the office?</option>
+                        <option value="How do I access the company's internal knowledge base?">How do I access the company's internal knowledge base?</option>
+                        <option value="What is the process for booking meeting rooms?">What is the process for booking meeting rooms?</option>
+                        <option value="What are the security protocols for accessing company data remotely?">What are the security protocols for accessing company data remotely?</option>
+                        <option value="How does the company handle data privacy?">How does the company handle data privacy?</option>
+                        <option value="What is the policy on using personal devices for work?">What is the policy on using personal devices for work?</option>
+                        <option value="What career development opportunities are available?">What career development opportunities are available?</option>
+                    </select>
+                </div>
                 
-                <div class="project-features">
-                    <div class="feature">
-                        <i class="fas fa-code"></i>
-                        <span>Complete HTML/CSS/JS Implementation</span>
-                    </div>
-                    <div class="feature">
-                        <i class="fas fa-mobile-alt"></i>
-                        <span>Fully Responsive Design</span>
-                    </div>
-                    <div class="feature">
-                        <i class="fas fa-database"></i>
-                        <span>20+ Sample Questions & Database</span>
-                    </div>
-                    <div class="feature">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Live Performance Comparison</span>
-                    </div>
-                    <div class="feature">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Interactive Learning Exercises</span>
-                    </div>
-                    <div class="feature">
-                        <i class="fas fa-palette"></i>
-                        <span>Professional UI/UX Design</span>
+                <div class="input-group">
+                    <label for="userQuestion"><i class="fas fa-question-circle"></i> Or Type Your Own Question:</label>
+                    <input type="text" id="userQuestion" placeholder="Type your question here...">
+                    <button class="btn" onclick="processQuestion()">
+                        <i class="fas fa-bolt"></i> Generate Answers
+                    </button>
+                </div>
+
+                <div class="database">
+                    <strong>Company Knowledge Base (For RAG):</strong><br>
+                    - Leave Policy 2024: Employees get 20 paid leaves per year<br>
+                    - WFH Policy: 2 days work from home allowed per week<br>
+                    - New Project: "Project Phoenix" started in March 2024<br>
+                    - Team Size: Currently 45 developers in the company<br>
+                    - Laptop Request: Submit form to IT department with manager approval<br>
+                    - Working Hours: 9 AM to 6 PM with 1 hour lunch break<br>
+                    - Dress Code: Business casual, no strict formal requirements<br>
+                    - Expense Reimbursement: Submit receipts through Finance portal within 30 days<br>
+                    - Performance Reviews: Conducted quarterly with manager feedback<br>
+                    - Training Programs: Monthly workshops, online courses, conference allowances<br>
+                    - Overtime Policy: Compensated with extra pay or time off in lieu<br>
+                    - IT Support: Log tickets through the helpdesk system<br>
+                    - Social Media: Personal use allowed during breaks, no confidential information<br>
+                    - Office Visitors: Must be registered at reception, employee responsibility<br>
+                    - Knowledge Base: Access through company intranet with employee login<br>
+                    - Meeting Rooms: Book through calendar system, max 2 hours per booking<br>
+                    - Remote Access: VPN required, two-factor authentication mandatory<br>
+                    - Data Privacy: GDPR compliant, regular audits, data minimization principle<br>
+                    - BYOD Policy: Allowed with security software installation<br>
+                    - Career Development: Mentorship programs, skill assessments, promotion paths
+                </div>
+
+                <div id="output" class="output">
+                    <div class="comparison">
+                        <div class="comparison-item traditional">
+                            <h4><i class="fas fa-robot"></i> Traditional LLM Answer:</h4>
+                            <p id="traditionalAnswer"></p>
+                        </div>
+                        <div class="comparison-item rag">
+                            <h4><i class="fas fa-brain"></i> RAG System Answer:</h4>
+                            <p id="ragAnswer"></p>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <p><strong>Who will benefit from this?</strong><br>
-            • Data Scientists struggling with LLM inaccuracies<br>
-            • AI Engineers building reliable AI systems<br>
-            • Product Managers implementing AI features<br>
-            • Anyone working with enterprise knowledge bases</p>
-            
-            <p>This isn't just theoretical - I've built a working prototype that you can try right now! ⬇️</p>
-            
-            <div class="cta-section">
-                <a href="#" class="github-btn">
-                    <i class="fab fa-github"></i>
-                    View Live Project on GitHub
-                </a>
+        </div>
+    </section>
+
+    <section id="practice" style="background: var(--light);">
+        <div class="container">
+            <div class="section-title">
+                <h2>Practice Exercise</h2>
+                <p>Test your understanding of how RAG can solve real-world problems</p>
             </div>
             
-            <p><strong>Special thanks</strong> to the AI community for the inspiration! Let's make AI more reliable together. 🤝</p>
-            
-            <p><strong>What's your biggest challenge with LLMs?</strong> Let me know in the comments! 👇</p>
-            
-            <p><em>#BuildInPublic #TechForGood #Innovation #OpenSource</em></p>
+            <div class="practice-questions">
+                <div class="question-card">
+                    <h4><i class="fas fa-headset"></i> Scenario 1: Customer Support</h4>
+                    <p>A customer is asking about a new product feature that was launched yesterday.</p>
+                    <textarea id="answer1" placeholder="Your answer here..." rows="3"></textarea>
+                    <button class="btn" onclick="checkAnswer(1)" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-check"></i> Check Answer
+                    </button>
+                </div>
+                
+                <div class="question-card">
+                    <h4><i class="fas fa-stethoscope"></i> Scenario 2: Medical Research</h4>
+                    <p>A doctor needs the latest medical guidelines for a specific disease.</p>
+                    <textarea id="answer2" placeholder="Your answer here..." rows="3"></textarea>
+                    <button class="btn" onclick="checkAnswer(2)" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-check"></i> Check Answer
+                    </button>
+                </div>
+                
+                <div class="question-card">
+                    <h4><i class="fas fa-gavel"></i> Scenario 3: Legal Document</h4>
+                    <p>A lawyer needs information about a recent court case judgment.</p>
+                    <textarea id="answer3" placeholder="Your answer here..." rows="3"></textarea>
+                    <button class="btn" onclick="checkAnswer(3)" style="margin-top: 15px; width: 100%;">
+                        <i class="fas fa-check"></i> Check Answer
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <div class="post-stats">
-            <div>👍 248 Likes</div>
-            <div>💬 42 Comments</div>
-            <div>🔄 17 Reposts</div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3>RAG System - Smart Memory for LLMs</h3>
+                <div class="footer-links">
+                    <a href="#problem">The Problem</a>
+                    <a href="#solution">The Solution</a>
+                    <a href="#demo">Live Demo</a>
+                    <a href="#practice">Practice</a>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2024 RAG Learning Module - Data Science Trends | Educational Example for Practical RAG Implementation</p>
+            </div>
         </div>
-        
-        <div class="post-actions">
-            <button class="action-btn">
-                <i class="far fa-thumbs-up"></i> Like
-            </button>
-            <button class="action-btn">
-                <i class="far fa-comment"></i> Comment
-            </button>
-            <button class="action-btn">
-                <i class="far fa-share-square"></i> Repost
-            </button>
-            <button class="action-btn">
-                <i class="far fa-paper-plane"></i> Send
-            </button>
-        </div>
-    </div>
+    </footer>
 
     <script>
-        // Simple interaction for demonstration
-        document.querySelectorAll('.action-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const action = this.querySelector('i').className;
-                if (action.includes('thumbs-up')) {
-                    alert('Thanks for liking this post! 👍');
-                } else if (action.includes('comment')) {
-                    alert('Comments help boost engagement! Thank you! 💬');
-                } else if (action.includes('share-square')) {
-                    alert('Reposting helps spread knowledge! 🔄');
-                } else if (action.includes('paper-plane')) {
-                    alert('Sharing with connections is appreciated! 📤');
-                }
+        // Hardcoded responses for the 20 questions
+        const questionResponses = {
+            "What is our company's latest leave policy?": {
+                traditional: "Generally, companies provide around 15-20 paid leaves per year. The exact policy varies by company and location. You should check with your HR department for specific details about your company's leave policy.",
+                rag: "According to our company's latest leave policy (updated 2024), every employee is entitled to 20 paid leaves per calendar year. This information was retrieved from the company's HR policy database last updated on March 15, 2024."
+            },
+            "How many work from home days are allowed per week?": {
+                traditional: "Many companies now offer hybrid work models with some days working from home. The specific policy depends on the company's guidelines and the nature of the work. I recommend checking your company's official policy documents.",
+                rag: "The current work-from-home policy allows employees to work remotely for up to 2 days per week. This policy was implemented in January 2024 and is documented in the company's remote work guidelines (document ID: HR-POL-024)."
+            },
+            "When did Project Phoenix start?": {
+                traditional: "Companies regularly initiate new projects as part of their business operations. For details about current projects at your company, you would need to consult internal communications or project management systems.",
+                rag: "The company recently launched 'Project Phoenix' in March 2024. This is an e-commerce platform upgrade initiative aimed at improving customer experience and backend efficiency. The project documentation is available in the project management portal."
+            },
+            "How many developers are currently in the company?": {
+                traditional: "Development team sizes vary significantly across companies based on their size and needs. Small companies might have teams of 5-10 developers, while larger enterprises could have hundreds. Check your company's organizational chart for precise numbers.",
+                rag: "As of the latest organizational data (April 2024), the company currently employs 45 developers distributed across various teams including frontend, backend, mobile, and DevOps. This information is sourced from the HR department's monthly headcount report."
+            },
+            "What is the process for requesting a new laptop?": {
+                traditional: "Typically, employees need to submit a request to their manager or IT department for new equipment. The exact process varies by organization. You should check your company's IT policy or ask your supervisor.",
+                rag: "To request a new laptop, employees must complete the IT Equipment Request Form available on the company portal and obtain manager approval. The request is then processed by the IT department, with standard delivery within 5-7 business days. This process is documented in the IT Policy v3.2."
+            },
+            "What are the working hours for our company?": {
+                traditional: "Standard working hours vary by company and region. Many offices operate from 9 AM to 5 PM, but flexible arrangements are becoming more common. Check your employment contract or employee handbook for specifics.",
+                rag: "The standard working hours at our company are from 9 AM to 6 PM, Monday through Friday, with a one-hour lunch break. Flexible start times between 8-10 AM are permitted with manager approval, as per the Flexible Working Policy updated January 2024."
+            },
+            "Is there a dress code policy for the office?": {
+                traditional: "Dress codes vary widely across companies, from business formal to casual. Tech companies often have more relaxed dress codes. You should consult your employee handbook or ask HR for the specific policy at your workplace.",
+                rag: "The company follows a business casual dress code. While formal business attire is not required, clothing should be neat and professional. The policy explicitly prohibits clothing with offensive graphics, overly casual wear like shorts or flip-flops, and ensures a professional work environment."
+            },
+            "What is the procedure for expense reimbursement?": {
+                traditional: "Expense reimbursement processes typically involve submitting receipts through an online system or paper forms. Approval from a manager is usually required. Check with your finance department for the specific procedure at your company.",
+                rag: "Employees can submit expense reimbursements through the Finance Portal within 30 days of incurring the expense. Required documentation includes scanned receipts and a brief business purpose. Reimbursements are processed within 10 business days after manager approval, as per the Expense Policy v2.1."
+            },
+            "How does the performance review process work?": {
+                traditional: "Performance reviews are typically conducted annually or semi-annually. They involve self-assessment, manager feedback, and goal setting. The exact process varies by organization. Consult your HR department for details.",
+                rag: "Performance reviews are conducted quarterly. The process includes self-assessment, peer feedback, and manager evaluation using our Performance Management System. Goals are set using the OKR (Objectives and Key Results) framework. The next review cycle begins April 15, 2024."
+            },
+            "What training programs are available for employees?": {
+                traditional: "Companies often offer various training programs, both internal and external. These might include technical skills, soft skills, or leadership development. Check with your HR or learning and development department for current offerings.",
+                rag: "The company offers monthly technical workshops, access to LinkedIn Learning, certification reimbursement up to $1000 annually, and an annual conference allowance. New this quarter: AI Fundamentals course and Advanced Data Analytics certification program. Full details in the Learning Portal."
+            },
+            "What is the company's policy on overtime?": {
+                traditional: "Overtime policies vary by company and local labor laws. Some companies offer compensatory time off, while others provide additional pay. Check your employment contract and company handbook for specific details.",
+                rag: "Overtime is compensated at 1.5x the regular hourly rate for non-exempt employees. Exempt employees receive compensatory time off. All overtime must be pre-approved by management. The complete policy is detailed in the Employee Handbook section 4.3 (updated December 2023)."
+            },
+            "How do I report a technical issue with my computer?": {
+                traditional: "Technical issues are typically reported to the IT helpdesk via phone, email, or a ticketing system. Response times vary by company. Check your company's intranet or ask colleagues for the correct procedure.",
+                rag: "Technical issues should be reported through the IT Helpdesk Portal (helpdesk.company.com) or by calling extension 4357. Critical issues receive response within 2 hours during business hours. The IT department maintains Service Level Agreements for various issue types as documented in the IT Support Policy."
+            },
+            "What are the guidelines for using social media at work?": {
+                traditional: "Social media policies vary widely. Some companies restrict access entirely, while others allow limited personal use. Check your company's acceptable use policy or employee handbook for specific guidelines.",
+                rag: "Limited personal social media use is permitted during breaks. However, employees must not disclose confidential information, must maintain professional conduct, and should not engage in activities that could harm the company's reputation. The complete Social Media Policy is available on the company intranet."
+            },
+            "What is the company's policy on bringing visitors to the office?": {
+                traditional: "Visitor policies typically require registration at reception and may need prior approval. Security considerations often dictate these policies. Check with your office manager or security department for specifics.",
+                rag: "Visitors must be registered at reception at least 24 hours in advance using the Visitor Management System. Employees are responsible for their visitors at all times. External meetings should be conducted in designated areas. The full Visitor Policy is detailed in the Office Manual section 3.2."
+            },
+            "How do I access the company's internal knowledge base?": {
+                traditional: "Internal knowledge bases are typically accessed through the company intranet or specific portals. Login credentials are usually required. Ask your manager or IT department for access instructions.",
+                rag: "The internal knowledge base is accessible at kb.company.com using your employee credentials. It contains documentation for all internal processes, technical guides, and project information. New employees receive access during orientation week. For access issues, contact the Knowledge Management team."
+            },
+            "What is the process for booking meeting rooms?": {
+                traditional: "Meeting rooms are usually booked through a calendar system or reservation platform. Policies vary regarding how far in advance you can book and for how long. Check with your office administrator for the specific process.",
+                rag: "Meeting rooms can be booked through the company calendar system. Bookings are limited to 2 hours maximum during peak times (10 AM-4 PM). Recurring meetings require special approval. The complete Meeting Room Policy including equipment specifications is available on the Facilities portal."
+            },
+            "What are the security protocols for accessing company data remotely?": {
+                traditional: "Remote access typically requires VPN connection and multi-factor authentication. Security protocols vary by company. Consult your IT security policy or helpdesk for specific requirements.",
+                rag: "Remote access requires connection through the company VPN with mandatory two-factor authentication. All devices must have endpoint protection software installed. Access logs are monitored for security compliance. Full details in the Remote Access Security Policy v4.3."
+            },
+            "How does the company handle data privacy?": {
+                traditional: "Companies must comply with data privacy regulations like GDPR or CCPA. Specific practices vary. Check your company's privacy policy or consult the legal department for details about data handling procedures.",
+                rag: "The company is fully GDPR compliant and follows data minimization principles. Regular privacy audits are conducted, and all employees complete annual data privacy training. The Data Protection Officer can be contacted for privacy concerns. Full policy in the Data Privacy Handbook."
+            },
+            "What is the policy on using personal devices for work?": {
+                traditional: "BYOD (Bring Your Own Device) policies vary. Some companies allow it with security requirements, while others prohibit it entirely. Check your company's IT policy for specific guidelines.",
+                rag: "Personal devices may be used for work with installation of company-approved security software and compliance with the Mobile Device Management policy. Access to sensitive data requires additional authentication. The complete BYOD Policy is available on the IT Security portal."
+            },
+            "What career development opportunities are available?": {
+                traditional: "Career development opportunities typically include training, mentorship, and potential promotion paths. Specific programs vary by company. Discuss career goals with your manager or HR representative.",
+                rag: "Career development includes mentorship programs, quarterly skill assessments, defined promotion paths, and access to internal job postings. The company also offers tuition reimbursement for job-related courses. Schedule a career development discussion with your manager through the HR portal."
+            }
+        };
+
+        function loadQuestion() {
+            const dropdown = document.getElementById('questionDropdown');
+            const selectedQuestion = dropdown.value;
+            if (selectedQuestion) {
+                document.getElementById('userQuestion').value = selectedQuestion;
+                processQuestion();
+            }
+        }
+
+        function processQuestion() {
+            const question = document.getElementById('userQuestion').value;
+            const output = document.getElementById('output');
+            const traditionalAnswer = document.getElementById('traditionalAnswer');
+            const ragAnswer = document.getElementById('ragAnswer');
+            
+            if (!question) {
+                alert('Please enter or select a question');
+                return;
+            }
+
+            // Check if we have a predefined response
+            let response = questionResponses[question];
+            
+            // If not, generate a generic response
+            if (!response) {
+                response = {
+                    traditional: "I don't have specific information about that topic in my training data. My knowledge is based on information available up to my last training cut-off. For current or company-specific information, please consult official sources.",
+                    rag: "I couldn't find specific information about your question in the company knowledge base. Please try rephrasing your question or contact the relevant department for assistance. The knowledge base was last updated on April 10, 2024."
+                };
+            }
+
+            traditionalAnswer.textContent = response.traditional;
+            ragAnswer.textContent = response.rag;
+            output.style.display = 'block';
+            
+            // Smooth scroll to output
+            output.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function checkAnswer(scenarioNum) {
+            const answer = document.getElementById(`answer${scenarioNum}`).value.toLowerCase();
+            const expectedKeywords = {
+                1: ['latest', 'new', 'recent', 'database', 'document', 'rag', 'retrieve', 'knowledge base', 'updated'],
+                2: ['guidelines', 'latest', 'research', 'medical', 'database', 'updated', 'current', 'recent studies'],
+                3: ['recent', 'court', 'case', 'document', 'database', 'latest', 'judgment', 'legal database']
+            };
+
+            let foundKeywords = 0;
+            expectedKeywords[scenarioNum].forEach(keyword => {
+                if (answer.includes(keyword)) foundKeywords++;
             });
-        });
-        
-        document.querySelector('.github-btn').addEventListener('click', function(e) {
-            e.preventDefault();
-            alert('GitHub repository link would open here. Replace with your actual GitHub URL!');
+
+            if (foundKeywords >= 2) {
+                alert(`Great job! Your answer is correct. You identified ${foundKeywords} relevant RAG concepts.`);
+            } else {
+                alert(`Try to think more about how RAG would help in this scenario. Expected concepts include: ${expectedKeywords[scenarioNum].join(', ')}`);
+            }
+        }
+
+        // Enter key support for question input
+        document.getElementById('userQuestion').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                processQuestion();
+            }
         });
     </script>
 </body>
-</html>
+                        </html>
